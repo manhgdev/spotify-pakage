@@ -19,10 +19,9 @@ export class SpotiflyBase {
             // Nếu có cookie, ưu tiên sử dụng để xác thực
             if (this.cookie) {
                 try {
-                    const response = await fetch("https://open.spotify.com/get_access_token", {
+                    const response = await fetch("https://open.spotify.com/get_access_token?reason=transport&productType=web_player", {
                         headers: { 
-                            cookie: this.cookie,
-                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                            cookie: this.cookie
                         }
                     });
                     if (response.ok) {
@@ -40,28 +39,25 @@ export class SpotiflyBase {
             
             // Nếu không có cookie hoặc xác thực bằng cookie thất bại, dùng TOTP
             const [totp, ts] = this.generateToken();
+
             const params = new URLSearchParams({
                 reason: "transport",
-                productType: "web_player",
-                client_id: "d8a5ed958d274c2e8ee717e6a4b0971d",
-                service: "web-player",
-                version: "v2",
-                theme: "web",
+                productType: "embed",
                 totp,
                 totpVer: "5",
                 ts: ts.toString()
             });
-            
             const tokenUrl = `https://open.spotify.com/get_access_token?${params.toString()}`;
             
-            const response = await fetch(tokenUrl, {
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-                }
-            });
+            let response = await fetch(tokenUrl);
             
+            // Nếu request thất bại, thử lại một lần
             if (!response.ok) {
-                throw new Error(`Failed to get token. Status: ${response.status}`);
+                console.warn("Lần đầu request thất bại, đang thử lại...");
+                response = await fetch(tokenUrl);
+                if (!response.ok) {
+                    throw new Error(`Failed to get token after retry. Status: ${response.status}`);
+                }
             }
             
             const responseText = await response.text();
@@ -80,14 +76,19 @@ export class SpotiflyBase {
     }
 
     private generateToken(): [string, number] {
-        const totpSecret = "5507145853487499592248630329347";
-
+        const totpSecret = new Uint8Array([
+            53, 53, 48, 55, 49, 52, 53, 56, 53, 51, 52, 56, 55, 52, 57, 57,
+            53, 57, 50, 50, 52, 56, 54, 51, 48, 51, 50, 57, 51, 52, 55
+        ]);
+    
+        // Note for  me: Can also be used from Buffer.from("5507145853487499592248630329347", 'utf8');
+    
         const timeStep = Math.floor(Date.now() / 30000);
-        const counter = Buffer.alloc(8);
-        counter.writeBigInt64BE(BigInt(timeStep));
-
+        const counter = new Uint8Array(8);
+        const counterView = new DataView(counter.buffer);
+        counterView.setBigInt64(0, BigInt(timeStep));
+    
         const hmac = crypto.createHmac('sha1', totpSecret);
-        // @ts-ignore
         hmac.update(counter);
         const hash = hmac.digest();
         const offset = hash[hash.length - 1] & 0x0f;
