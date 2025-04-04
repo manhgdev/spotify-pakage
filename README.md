@@ -102,87 +102,87 @@ Functions marked with an asterisk (*) require your spotify cookies to work. [How
 
 The main module containing all the Spotify API functions.
 
-- ### `getHomepage()`: [*`Promise<SpotifyHome>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/home.ts)
+- ### `getHomepage()`: [*`Promise<SpotifyHome>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/home.ts)
 
   Fetch the Spotify homepage data.
 
-- ### `getTrack(id: string)`: [*`Promise<SpotifyTrack>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/track.ts)
+- ### `getTrack(id: string)`: [*`Promise<SpotifyTrack>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/track.ts)
 
   Fetch the details of the provided track id.
 
-- ### `getTrackCredits(id: string)`: [*`Promise<SpotifyTrackCredits>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/trackCredits.ts)
+- ### `getTrackCredits(id: string)`: [*`Promise<SpotifyTrackCredits>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/trackCredits.ts)
 
   Fetch the credits of the provided track id.
 
-- ### `getRelatedTrackArtists(id: string)`: [*`Promise<SpotifyRelatedTrackArtists>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/relatedTrackArtists.ts)
+- ### `getRelatedTrackArtists(id: string)`: [*`Promise<SpotifyRelatedTrackArtists>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/relatedTrackArtists.ts)
 
   Fetch the related artists of the artist of the provided track id.
 
-- ### `getArtist(id: string)`: [*`Promise<SpotifyArtist>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/artist.ts)
+- ### `getArtist(id: string)`: [*`Promise<SpotifyArtist>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/artist.ts)
 
   Fetch the details of the provided artist id.
 
-- ### `getAlbum(id: string, limit?: number)`: [*`Promise<SpotifyAlbum>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/album.ts)
+- ### `getAlbum(id: string, limit?: number)`: [*`Promise<SpotifyAlbum>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/album.ts)
 
   Fetch the details of the provided album id, with optional limit for amount of tracks to fetch.
 
-- ### `getPlaylist(id: string, limit?: number)`: [*`Promise<SpotifyPlaylist>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/playlist.ts)
+- ### `getPlaylist(id: string, limit?: number)`: [*`Promise<SpotifyPlaylist>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/playlist.ts)
 
   Fetch all the details of the provided playlist id, with optional limit for amount of tracks to fetch.
 
-- ### `getPlaylistMetadata(id: string, limit?: number)`: [*`Promise<SpotifyPlaylistMetadata>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/playlistMetadata.ts)
+- ### `getPlaylistMetadata(id: string, limit?: number)`: [*`Promise<SpotifyPlaylistMetadata>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/playlistMetadata.ts)
 
   Fetch the metadata only of the provided playlist id, with optional limit for amount of tracks to fetch.
 
-- ### `getPlaylistContents(id: string, limit?: number)`: [*`Promise<SpotifyPlaylistContents>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/playlistContents.ts)
+- ### `getPlaylistContents(id: string, limit?: number)`: [*`Promise<SpotifyPlaylistContents>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/playlistContents.ts)
 
   Fetch the contents of the provided playlist id, with optional limit for amount of tracks to fetch.
 
-- ### `getUser(id: string, config?: { playlistLimit?: number, artistLimit?: number, episodeLimit?: number })`: [*`Promise<SpotifyUser>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/user.ts)
+- ### `getUser(id: string, config?: { playlistLimit?: number, artistLimit?: number, episodeLimit?: number })`: [*`Promise<SpotifyUser>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/user.ts)
 
   Fetch the details of the provided user id, with optional limit for amount of tracks to fetch.
 
-- ### `getSection(id: string)`: [*`Promise<SpotifySection>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/section.ts)
+- ### `getSection(id: string)`: [*`Promise<SpotifySection>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/section.ts)
 
   Fetch the details of the provided section id.
 
-- ### `getPodcast(id: string)`: [*`Promise<SpotifyPodcast>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/podcast.ts)
+- ### `getPodcast(id: string)`: [*`Promise<SpotifyPodcast>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/podcast.ts)
 
   Fetch the details of the provided show id.
 
-- ### `getPodcastEpisodes(id: string, limit?: number)`: [*`Promise<SpotifyPodcastEpisodes>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/podcastEpisodes.ts)
+- ### `getPodcastEpisodes(id: string, limit?: number)`: [*`Promise<SpotifyPodcastEpisodes>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/podcastEpisodes.ts)
 
   Fetch the episodes of the provided show id, with optional limit for amount of episodes to fetch.
 
-- ### `getEpisode(id: string)`: [*`Promise<SpotifyEpisode>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/episode.ts)
+- ### `getEpisode(id: string)`: [*`Promise<SpotifyEpisode>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/episode.ts)
 
   Fetch the details of the provided episode id.
 
-- ### `searchAll(terms: string, limit?: number)`: [*`Promise<SpotifySearchAll>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/searchAll.ts)
+- ### `searchAll(terms: string, limit?: number)`: [*`Promise<SpotifySearchAll>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/searchAll.ts)
 
   Search the Spotify library with the terms provided, for all types of content, with optional limit for amount of search results to fetch.
 
-- ### `searchTracks(terms: string, limit?: number)`: [*`Promise<SpotifySearchTracks>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/searchTracks.ts)
+- ### `searchTracks(terms: string, limit?: number)`: [*`Promise<SpotifySearchTracks>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/searchTracks.ts)
 
   Search the Spotify library with the terms provided, for tracks, with optional limit for amount of search results to fetch.
 
-- ### `searchAlbums(terms: string, limit?: number)`: [*`Promise<SpotifySearchAlbums>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/searchAlbums.ts)
+- ### `searchAlbums(terms: string, limit?: number)`: [*`Promise<SpotifySearchAlbums>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/searchAlbums.ts)
 
   Search the Spotify library with the terms provided, for albums, with optional limit for amount of search results to fetch.
 
-- ### `searchPlaylists(terms: string, limit?: number)`: [*`Promise<SpotifySearchPlaylists>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/searchPlaylists.ts)
+- ### `searchPlaylists(terms: string, limit?: number)`: [*`Promise<SpotifySearchPlaylists>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/searchPlaylists.ts)
 
   Search the Spotify library with the terms provided, for playlists, with optional limit for amount of search results to fetch.
 
-- ### `searchArtists(terms: string, limit?: number)`: [*`Promise<SpotifySearchArtists>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/searchArtists.ts)
+- ### `searchArtists(terms: string, limit?: number)`: [*`Promise<SpotifySearchArtists>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/searchArtists.ts)
 
   Search the Spotify library with the terms provided, for artists, with optional limit for amount of search results to fetch.
 
-- ### `searchUsers(terms: string, limit?: number)`: [*`Promise<SpotifySearchUsers>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/searchUsers.ts)
+- ### `searchUsers(terms: string, limit?: number)`: [*`Promise<SpotifySearchUsers>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/searchUsers.ts)
 
   Search the Spotify library with the terms provided, for users, with optional limit for amount of search results to fetch.
 
-- ### `searchPodcasts(terms: string, limit?: number)`: [*`Promise<SpotifySearchPodcasts>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/searchPodcasts.ts)
+- ### `searchPodcasts(terms: string, limit?: number)`: [*`Promise<SpotifySearchPodcasts>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/searchPodcasts.ts)
 
   Search the Spotify library with the terms provided, for podcasts and shows, with optional limit for amount of search results to fetch.
 
@@ -192,17 +192,17 @@ The main module containing all the Spotify API functions.
 
   If you want to fetch lyrics directly from Spotify, see [`getTrackColorLyrics`](#gettrackcolorlyricsid-string-imgurl-string-promisespotifycolorlyrics).
 
-- ### `extractImageColors(...urls: string[])`: [*`Promise<SpotifyExtractedColors>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/extractedColors.ts)
+- ### `extractImageColors(...urls: string[])`: [*`Promise<SpotifyExtractedColors>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/extractedColors.ts)
 
   Extract raw, dark and light colors from the provided urls of images using Spotify API.
 
 > The following functions require cookies to work. [How to get your Spotify cookies ?](#-how-to-get-your-spotify-cookies-)
 
-- ### `getMyProfile()`: [*`Promise<SpotifyMyProfile>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/myProfile.ts)
+- ### `getMyProfile()`: [*`Promise<SpotifyMyProfile>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/myProfile.ts)
 
   Fetch the details of your Spotify profile.
 
-- ### `getMyLibrary(config?)`: [*`Promise<SpotifyMyLibrary>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/myLibrary.ts)
+- ### `getMyLibrary(config?)`: [*`Promise<SpotifyMyLibrary>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/myLibrary.ts)
 
   Fetch your Spotify library.
 
@@ -211,23 +211,23 @@ The main module containing all the Spotify API functions.
   - config.textFilter?: `string`
   - config.limit?: `number`
 
-- ### `getMyProductState()`: [*`Promise<SpotifyProductState>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/productState.ts)
+- ### `getMyProductState()`: [*`Promise<SpotifyProductState>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/productState.ts)
 
   Fetch the details of your Spotify product state like premium plan, etc.
 
-- ### `getMyLikedSongs()`: [*`Promise<SpotifyLikedSongs>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/likedSongs.ts)
+- ### `getMyLikedSongs()`: [*`Promise<SpotifyLikedSongs>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/likedSongs.ts)
 
   Fetch the songs you have liked from your Spotify library.
 
-- ### `addToLikedSongs(...trackUris: string[])`: [*`Promise<SpotifyLikedSongsAdd>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/likedSongs.ts)
+- ### `addToLikedSongs(...trackUris: string[])`: [*`Promise<SpotifyLikedSongsAdd>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/likedSongs.ts)
 
   Add the tracks to your liked songs library.
 
-- ### `removeFromLikedSongs(...trackUris: string[])`: [*`Promise<SpotifyLikedSongsRemove>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/likedSongs.ts)
+- ### `removeFromLikedSongs(...trackUris: string[])`: [*`Promise<SpotifyLikedSongsRemove>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/likedSongs.ts)
 
   Remove the tracks from your liked songs library.
 
-- ### `getTrackColorLyrics(id: string, imgUrl?: string)`: [*`Promise<SpotifyColorLyrics>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/likedSongs.ts)
+- ### `getTrackColorLyrics(id: string, imgUrl?: string)`: [*`Promise<SpotifyColorLyrics>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/likedSongs.ts)
 
   Fetch the track lyrics directly from Spotify's internal Musixmatch API with an optional image url to fetch the colors of that image.
 
@@ -285,7 +285,7 @@ The module containing all the functions to interact with playlists in your Spoti
 
 The Musixmatch API module containing functions to search and fetch lyrics. No authentication needed.
 
-- ### `search(terms: string)`: [*`Promise<MusixmatchSearch[]>`*](https://github.com/tr1ckydev/spotifly/blob/main/src/types/musixmatchSearch.ts)
+- ### `search(terms: string)`: [*`Promise<MusixmatchSearch[]>`*](https://github.com/manhgdev/spotify-pakage/blob/main/src/types/musixmatchSearch.ts)
 
   Search the Musixmatch library with the terms provided.
 
@@ -336,4 +336,4 @@ The copied value is your Spotify cookies.
 
 ## 📜 License
 
-This repository uses MIT License. See [LICENSE](https://github.com/tr1ckydev/spotifly/blob/main/LICENSE) for full license text.
+This repository uses MIT License. See [LICENSE](https://github.com/manhgdev/spotify-pakage/blob/main/LICENSE) for full license text.
