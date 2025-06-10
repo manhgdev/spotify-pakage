@@ -19,7 +19,7 @@ export class SpotiflyBase {
             // Nếu có cookie, ưu tiên sử dụng để xác thực
             if (this.cookie) {
                 try {
-                    const response = await fetch("https://open.spotify.com/get_access_token?reason=transport&productType=web_player", {
+                    const response = await fetch("https://open.spotify.com/api/token?reason=transport&productType=web_player", {
                         headers: { 
                             cookie: this.cookie
                         }
