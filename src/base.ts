@@ -47,7 +47,7 @@ export class SpotiflyBase {
                 totpVer: "5",
                 ts: ts.toString()
             });
-            const tokenUrl = `https://open.spotify.com/get_access_token?${params.toString()}`;
+            const tokenUrl = `https://open.spotify.com/api/token?${params.toString()}`;
             
             let response = await fetch(tokenUrl);
             
