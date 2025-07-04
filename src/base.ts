@@ -38,17 +38,14 @@ export class SpotiflyBase {
             }
             
             // Nếu không có cookie hoặc xác thực bằng cookie thất bại, dùng TOTP
-            const [totp, ts] = this.generateToken();
+            const payload = await this.generateAuthPayload();
+            const url = new URL("https://open.spotify.com/api/token");
 
-            const params = new URLSearchParams({
-                reason: "transport",
-                productType: "embed",
-                totp,
-                totpVer: "5",
-                ts: ts.toString()
+            Object.entries(payload).forEach(([key, value]) => {
+                url.searchParams.append(key, value);
             });
-            const tokenUrl = `https://open.spotify.com/api/token?${params.toString()}`;
-            
+
+            const tokenUrl = url.toString();
             let response = await fetch(tokenUrl);
             
             // Nếu request thất bại, thử lại một lần
@@ -75,30 +72,94 @@ export class SpotiflyBase {
         }
     }
 
-    private generateToken(): [string, number] {
-        const totpSecret = new Uint8Array([
-            53, 53, 48, 55, 49, 52, 53, 56, 53, 51, 52, 56, 55, 52, 57, 57,
-            53, 57, 50, 50, 52, 56, 54, 51, 48, 51, 50, 57, 51, 52, 55
-        ]);
-    
-        // Note for  me: Can also be used from Buffer.from("5507145853487499592248630329347", 'utf8');
-    
-        const timeStep = Math.floor(Date.now() / 30000);
-        const counter = new Uint8Array(8);
-        const counterView = new DataView(counter.buffer);
-        counterView.setBigInt64(0, BigInt(timeStep));
-    
-        const hmac = crypto.createHmac('sha1', totpSecret);
-        hmac.update(counter);
-        const hash = hmac.digest();
+    private async generateAuthPayload(reason = "init", productType = "mobile-web-player") {
+        const localTime = Date.now();
+        const serverTime = await this.getServerTime();
+        const secret = this.generateTOTPSecret();
+
+        // Generate TOTP for current time
+        const totp = this.generateTOTP(localTime, secret);
+
+        // Generate TOTP for server time (divided by 30 for 30-second periods)
+        const totpServer = this.generateTOTP(Math.floor(serverTime / 30), secret);
+
+        return {
+            reason,
+            productType,
+            totp,
+            totpServer,
+            totpVer: "9" // Version extracted from the obfuscated code
+        };
+    }
+
+    // Generate the TOTP secret from the data array
+    private generateTOTPSecret() {
+        // Extracted from the obfuscated JavaScript - the secret data array
+        const SECRET_DATA = [37, 84, 32, 76, 87, 90, 87, 47, 13, 75, 48, 54, 44, 28, 19, 21, 22];
+
+        // XOR each value with ((index % 33) + 9)
+        const mappedData = SECRET_DATA.map((value, index) =>
+            value ^ ((index % 33) + 9)
+        );
+
+        // Convert to hex
+        const hexData = Buffer.from(mappedData.join(""), "utf8").toString("hex");
+        return hexData;
+    }
+
+    // TOTP generation function (simplified from the obfuscated code)
+    private generateTOTP(timestamp: number, secret: string): string {
+        const period = 30; // 30 seconds period
+        const digits = 6;  // 6 digit code
+
+        // Convert timestamp to counter (30-second periods since Unix epoch)
+        const counter = Math.floor(timestamp / 1000 / period);
+
+        // Convert counter to 8-byte buffer (big-endian)
+        const counterBuffer = Buffer.allocUnsafe(8);
+        counterBuffer.writeUInt32BE(0, 0);
+        counterBuffer.writeUInt32BE(counter, 4);
+
+        // HMAC-SHA1 - convert to Uint8Array for compatibility
+        const secretBuffer = new Uint8Array(Buffer.from(secret, 'hex'));
+        const hmac = crypto.createHmac('sha1', secretBuffer);
+        const hash = hmac.update(new Uint8Array(counterBuffer)).digest();
+
+        // Dynamic truncation
         const offset = hash[hash.length - 1] & 0x0f;
-        const binCode =
-            ((hash[offset] & 0x7f) << 24) |
-            ((hash[offset + 1] & 0xff) << 16) |
-            ((hash[offset + 2] & 0xff) << 8) |
-            (hash[offset + 3] & 0xff);
-        const token = (binCode % 1000000).toString().padStart(6, '0');
-        return [token, timeStep * 30000];
+        const truncatedHash = hash.slice(offset, offset + 4);
+
+        // Convert to number and apply modulo
+        const code = truncatedHash.readUInt32BE(0) & 0x7fffffff;
+        const otp = code % Math.pow(10, digits);
+
+        // Pad with leading zeros
+        return otp.toString().padStart(digits, '0');
+    }
+    
+    private async getServerTime() {
+        try {
+            const response = await fetch('https://open.spotify.com/api/server-time', {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
+                    'Origin': 'https://open.spotify.com/',
+                    'Referer': 'https://open.spotify.com/',
+                }
+            });
+
+            const data = await response.json() as { serverTime: string | number };
+            const time = Number(data.serverTime);
+
+            if (isNaN(time)) {
+                throw new Error('Invalid server time');
+            }
+
+            return time * 1000; // Convert to milliseconds
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            console.warn('Failed to get server time, using local time:', errorMessage);
+            return Date.now();
+        }
     }
 
     protected async fetch<T>(url: string, optionalHeaders?: { [index: string]: string; }) {
