@@ -95,7 +95,7 @@ export class SpotiflyBase {
     // Generate the TOTP secret from the data array
     private generateTOTPSecret() {
         // Extracted from the obfuscated JavaScript - the secret data array
-        const SECRET_DATA = [37, 84, 32, 76, 87, 90, 87, 47, 13, 75, 48, 54, 44, 28, 19, 21, 22];
+        const SECRET_DATA = [61, 110, 58, 98, 35, 79, 117, 69, 102, 72, 92, 102, 69, 93, 41, 101, 42, 75];
 
         // XOR each value with ((index % 33) + 9)
         const mappedData = SECRET_DATA.map((value, index) =>

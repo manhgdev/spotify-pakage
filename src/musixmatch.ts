@@ -1,5 +1,3 @@
-import { MusixmatchSearch } from "./types/musixmatchSearch";
-
 export namespace Musixmatch {
 
     export async function search(terms: string) {
