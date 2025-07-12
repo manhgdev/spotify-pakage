@@ -421,7 +421,7 @@ class MusixMatchAPI {
             
             if (duration) {
                 // Try to convert if it's in mm:ss format
-                if (duration.includes(':')) {
+                if (typeof duration === 'string' && duration.includes(':')) {
                     durationSeconds = MusixMatchLyrics.convertDuration(duration);
                 } else {
                     durationSeconds = parseInt(duration, 10);
@@ -508,7 +508,7 @@ async function examples() {
     // Example 1: Using alternative method
     console.log('=== Alternative Method ===');
     try {
-        const result1 = await api.getLyricsAlternative('Hope', 'XXXTENTACION', '');
+        const result1 = await api.getLyricsAlternative('The Weeknd', 'Starboy', "");
         if (result1.success) {
             console.log('Lyrics found:');
             console.log(result1.lyrics);

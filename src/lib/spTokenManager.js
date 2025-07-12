@@ -1,10 +1,10 @@
 import { spCurlToken } from './spCurlToken.js';
 import { spClientToken } from './spClientToken.js';
 
-export async function spTokenManager(cookies = {}) {
+export async function spTokenManager(cookie = "") {
     try {
         // Thử sử dụng spCurlToken trước
-        const curlData = await spCurlToken(cookies);
+        const curlData = await spCurlToken(cookie);
         if (!curlData) {
             throw new Error('spCurlToken returned null or undefined');
         }

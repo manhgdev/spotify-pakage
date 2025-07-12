@@ -90,13 +90,14 @@ function generateTOTP(timestamp, secret) {
 }
 
 // Get server time from Spotify
-async function getServerTime() {
+async function getServerTime(cookie) {
     try {
         const response = await fetch('https://open.spotify.com/api/server-time', {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
                 'Origin': 'https://open.spotify.com/',
                 'Referer': 'https://open.spotify.com/',
+                'Cookie': cookie
             }
         });
 
@@ -119,9 +120,9 @@ async function getServerTime() {
 }
 
 // Generate authentication payload
-async function generateAuthPayload(reason = "init", productType = "mobile-web-player") {
+async function generateAuthPayload(reason = "init", productType = "mobile-web-player", cookie = "") {
     const localTime = Date.now();
-    const serverTime = await getServerTime();
+    const serverTime = await getServerTime(cookie);
 
     // Load secret data once to ensure SECRET_DATA and TOTP_VERSION are from the same version
     const { SECRET_DATA, TOTP_VERSION } = loadSecretData();
@@ -149,10 +150,6 @@ async function makeSpotifyTokenRequest(payload, cookies) {
         url.searchParams.append(key, value);
     });
 
-    const cookieString = Object.entries(cookies)
-        .map(([key, value]) => `${key}=${value}`)
-        .join('; ');
-
     const config = {
         method: 'GET',
         url: url.toString(),
@@ -165,7 +162,7 @@ async function makeSpotifyTokenRequest(payload, cookies) {
             'sec-fetch-mode': 'cors',
             'sec-fetch-site': 'same-origin',
             'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
-            ...(cookieString && { 'cookie': cookieString })
+            'cookie': cookies
         }
     };
 
@@ -185,10 +182,10 @@ async function makeSpotifyTokenRequest(payload, cookies) {
 }
 
 // Make actual HTTP request to test the generated parameters
-async function spGetToken(cookies = {}) {
+async function spGetToken(cookie = "") {
     try {
-        const payload = await generateAuthPayload();
-        const { response, result } = await makeSpotifyTokenRequest(payload, cookies);
+        const payload = await generateAuthPayload("init","mobile-web-player", cookie);
+        const { response, result } = await makeSpotifyTokenRequest(payload, cookie);
         return result;
     } catch (error) {
         // Handle 400 status - retry with new secrets
@@ -268,9 +265,9 @@ async function spRefreshToken(cookies = {}) {
 }
 
 // Export the refresh function for external use
-export async function spCurlToken(cookies = {}) {
+export async function spCurlToken(cookie) {
     try {
-        const result = await spGetToken(cookies);
+        const result = await spGetToken(cookie);
         // console.log(result)
         return {
             token: result.accessToken,

@@ -16,11 +16,8 @@ export class SpotiflyBase {
         if (this.tokenExpirationTimestampMs > Date.now()) return;
 
         try {
-            // Parse cookie string thành object nếu có
-            const cookies = this.cookie ? this.parseCookieString(this.cookie) : {};
-
             // Sử dụng spTokenManager để lấy token
-            const accessData = await spTokenManager(cookies);
+            const accessData = await spTokenManager(this.cookie);
             const accessToken = accessData.token;
             const expirationTime = accessData.expirationTime;
 

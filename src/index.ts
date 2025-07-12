@@ -94,7 +94,8 @@ class SpotiflyMain extends SpotiflyBase {
 
     public async getTrackLyrics(id: string) {
         const track = await this.getTrack(id);
-        return Musixmatch.searchLyrics(`${track.data.trackUnion.name} ${track.data.trackUnion.artistsWithRoles.items[0].artist.profile.name}`);
+        // console.log(track.data.trackUnion.name , track.data.trackUnion.artistsWithRoles.items[0].artist.profile.name, track.data.trackUnion.duration.totalMilliseconds);
+        return Musixmatch.getLyricsAlternative(track.data.trackUnion.artistsWithRoles.items[0].artist.profile.name,track.data.trackUnion.name, ""); 
     }
 
     public async extractImageColors(...urls: string[]) {
