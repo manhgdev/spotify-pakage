@@ -1,9 +1,12 @@
 {
   "name": "@manhgdev/spotifyweb",
-  "version": "2.0.3",
+  "version": "2.0.7",
   "description": "Spotify library in typescript without using the Spotify Web API. No authentication required with automatic internal token generation.",
   "main": "dist/index.js",
   "type": "module",
+  "engines": {
+    "node": ">=17.5.0"
+  },
   "directories": {
     "test": "tests"
   },
@@ -11,15 +14,21 @@
     "build": "tsc -p tsconfig.build.json",
     "prod": "tsc -p tsconfig.build.json && npm publish"
   },
+  "dependencies": {
+    "puppeteer": "^24.12.1",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  },
+  "devDependencies": {
+    "bun-types": "^0.6.14",
+    "typescript": "^5.8.3"
+  },
   "files": [
     "dist",
+    "src/lib/secrets",
     "LICENSE",
     "package.json"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tr1ckydev/spotifly.git"
-  },
   "keywords": [
     "api",
     "music",
@@ -28,17 +37,14 @@
     "spotify-api",
     "spotify-web-api"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tr1ckydev/spotifly.git"
+  },
   "author": "tr1ckydev",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/tr1ckydev/spotifly/issues"
   },
-  "homepage": "https://github.com/tr1ckydev/spotifly#readme",
-  "engines": {
-    "node": ">=17.5.0"
-  },
-  "devDependencies": {
-    "bun-types": "^0.6.12",
-    "typescript": "^5.8.2"
-  }
+  "homepage": "https://github.com/tr1ckydev/spotifly#readme"
 }
