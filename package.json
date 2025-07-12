@@ -1,6 +1,6 @@
 {
   "name": "@manhgdev/spotifyweb",
-  "version": "0.2.5",
+  "version": "2.0.3",
   "description": "Spotify library in typescript without using the Spotify Web API. No authentication required with automatic internal token generation.",
   "main": "dist/index.js",
   "type": "module",
@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "publish": "npm publish"
+    "prod": "tsc -p tsconfig.build.json && npm publish"
   },
   "files": [
     "dist",

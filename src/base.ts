@@ -72,6 +72,44 @@ export class SpotiflyBase {
         }
     }
 
+    protected async getSpotifyAccessToken() {
+        try {
+          console.log('Requesting Spotify access token...');
+          const CLIENT_ID = '5f573c9620494bae87890c0f08a60293';
+            const CLIENT_SECRET = '212476d9b0f3472eaa762d90b19b0ba8';
+            const SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token';
+            const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+          
+          // Base64 encode the client ID and secret
+          const credentials = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64');
+          
+          // Make the token request
+          const response = await fetch(SPOTIFY_TOKEN_URL, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Basic ${credentials}`,
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'User-Agent': USER_AGENT
+            },
+            body: 'grant_type=client_credentials'
+          });
+          
+          console.log(`Response status: ${response.status}`);
+          
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`Error response: ${errorText}`);
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error('Failed to get token:', error);
+          throw error;
+        }
+      }
+
     private async generateAuthPayload(reason = "init", productType = "mobile-web-player") {
         const localTime = Date.now();
         const serverTime = await this.getServerTime();
@@ -95,7 +133,7 @@ export class SpotiflyBase {
     // Generate the TOTP secret from the data array
     private generateTOTPSecret() {
         // Extracted from the obfuscated JavaScript - the secret data array
-        const SECRET_DATA = [61, 110, 58, 98, 35, 79, 117, 69, 102, 72, 92, 102, 69, 93, 41, 101, 42, 75];
+        const SECRET_DATA = [59,92,64,70,99,78,117,75,99,103,116,67,103,51,87,63,93,59,70,45,32];
 
         // XOR each value with ((index % 33) + 9)
         const mappedData = SECRET_DATA.map((value, index) =>
