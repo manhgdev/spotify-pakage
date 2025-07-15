@@ -13,7 +13,7 @@ puppeteer.use(StealthPlugin());
 
 // Các biến cấu hình
 const SPOTIFY_URL = 'https://open.spotify.com';
-const TIMEOUT = 60000; // Giảm timeout xuống 60 giây
+const TIMEOUT = 60000; //  timeout  60 giây
 const BUNDLE_RE = /(?:vendor~web-player|encore~web-player|web-player)\.[0-9a-f]{4,}\.(?:js|mjs)/;
 
 /**
@@ -175,16 +175,20 @@ async function grabLive() {
       "--disable-gpu",
       "--no-first-run",
       "--no-zygote",
-      "--single-process"
-    ]
+      "--single-process",
+      "--disable-blink-features=AutomationControlled",
+      "--disable-extensions"
+    ],
+    ignoreDefaultArgs: ["--enable-automation"],
+    ignoreHTTPSErrors: true
   });
 
   try {
     const page = await browser.newPage();
 
     // Thiết lập timeout cho trang
-    await page.setDefaultNavigationTimeout(TIMEOUT);
-    await page.setDefaultTimeout(TIMEOUT);
+    page.setDefaultNavigationTimeout(TIMEOUT);
+    page.setDefaultTimeout(TIMEOUT);
 
     // Thiết lập User-Agent để giả lập trình duyệt thực
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
@@ -226,12 +230,29 @@ async function grabLive() {
 
       console.log("Trang đã tải xong DOM, đợi thêm để JavaScript thực thi...");
 
-      // Đợi cho phần tử cụ thể xuất hiện
-      try {
-        await page.waitForSelector('div[data-testid="root"]', { timeout: 15000 });
-        console.log("Đã tìm thấy phần tử root");
-      } catch (err) {
-        console.log("Không tìm thấy phần tử root, nhưng vẫn tiếp tục...");
+      // Đợi cho phần tử cụ thể xuất hiện với nhiều selector khác nhau
+      const selectors = [
+        'div[data-testid="root"]',
+        '#main',
+        '.Root',
+        'body',
+        'html'
+      ];
+
+      let elementFound = false;
+      for (const selector of selectors) {
+        try {
+          await page.waitForSelector(selector, { timeout: 5000 });
+          console.log(`Đã tìm thấy phần tử: ${selector}`);
+          elementFound = true;
+          break;
+        } catch {
+          console.log(`Không tìm thấy phần tử ${selector}, thử selector tiếp theo...`);
+        }
+      }
+
+      if (!elementFound) {
+        console.log("Không tìm thấy phần tử nào, nhưng vẫn tiếp tục...");
       }
 
     } catch (err) {
@@ -244,11 +265,53 @@ async function grabLive() {
 
     // Thử tương tác với trang để kích hoạt thêm JavaScript
     try {
-      await page.click('body');
+      // Đợi cho body element sẵn sàng
+      await page.waitForSelector('body', { timeout: 5000 });
+
+      // Kiểm tra xem body có thể click được không
+      const bodyExists = await page.evaluate(() => {
+        const body = document.querySelector('body');
+        return body && body.offsetParent !== null;
+      });
+
+      if (bodyExists) {
+        await page.click('body');
+        console.log("Đã click vào body");
+      } else {
+        // Thử click vào html element thay thế
+        await page.evaluate(() => {
+          document.documentElement.click();
+        });
+        console.log("Đã click vào html element");
+      }
+
       await page.keyboard.press('Escape');
       console.log("Đã tương tác với trang");
     } catch (err) {
       console.log("Không thể tương tác với trang:", err.message);
+      // Thử phương pháp thay thế - trigger events bằng JavaScript
+      try {
+        await page.evaluate(() => {
+          // Trigger mouse events để kích hoạt JavaScript
+          const event = new MouseEvent('click', {
+            view: window,
+            bubbles: true,
+            cancelable: true
+          });
+          document.dispatchEvent(event);
+
+          // Trigger keyboard events
+          const keyEvent = new KeyboardEvent('keydown', {
+            key: 'Escape',
+            code: 'Escape',
+            bubbles: true
+          });
+          document.dispatchEvent(keyEvent);
+        });
+        console.log("Đã trigger events bằng JavaScript");
+      } catch (jsErr) {
+        console.log("Không thể trigger events:", jsErr.message);
+      }
     }
 
     // Đợi thêm sau khi tương tác
