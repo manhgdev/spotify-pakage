@@ -378,6 +378,11 @@ async function grabLive() {
  */
 export async function puppeteer_extract() {
   try {
+    // Lấy secret từ github
+    const github_extra = await import('./github_extra.js');
+    const data = await github_extra.github_extra();
+    if (data) return;
+
     console.log("Bắt đầu trích xuất Spotify Canvas API secret...");
     const caps = await grabLive();
     summarise(caps);
