@@ -1,0 +1,32 @@
+# Thư mục và file phát triển
+examples/
+tests/
+.github/
+.vscode/
+.idea/
+node_modules/
+test/
+coverage/
+docs/
+
+# File cấu hình
+.eslintrc.js
+.eslintignore
+.prettierrc
+.prettierignore
+jest.config.js
+tsconfig.json
+.gitignore
+
+# File tạm thời
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+*.swp
+*.swo
+
+# File tài liệu
+api.md
+endpoint.md 
