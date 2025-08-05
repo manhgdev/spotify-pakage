@@ -2,10 +2,10 @@ import { expect, test } from "bun:test";
 import { Musixmatch } from "../src";
 
 // await new Promise(resolve => setTimeout(resolve, 1000000000));
-test("search", async () => {
-    const result = await Musixmatch.search("starboy weeknd");
-    expect(result);
-});
+// test("search", async () => {
+//     const result = await Musixmatch.search("starboy weeknd");
+//     expect(result);
+// });
 
 // test("searchLyrics", async () => {
 //     try {

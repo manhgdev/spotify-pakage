@@ -154,6 +154,33 @@ class SpotiflyMain extends SpotiflyBase {
 
 }
 
+class SpotiflyInstanceOnly {
+    private static instance: SpotiflyMain | null = null;
+    private static cookieInstances = new Map<string, SpotiflyMain>();
+    
+    constructor(cookie?: string) {
+        return cookie 
+            ? SpotiflyInstanceOnly.getInstanceWithCookie(cookie) 
+            : SpotiflyInstanceOnly.getDefaultInstance();
+    }
+    
+    private static getDefaultInstance(): SpotiflyMain {
+        if (!this.instance) {
+            this.instance = new SpotiflyMain();
+        }
+        return this.instance;
+    }
+    
+    private static getInstanceWithCookie(cookie: string): SpotiflyMain {
+        if (!cookie) return this.getDefaultInstance();
+        
+        if (!this.cookieInstances.has(cookie)) {
+            this.cookieInstances.set(cookie, new SpotiflyMain(cookie));
+        }
+        return this.cookieInstances.get(cookie)!;
+    }
+}
+
 export { Parse } from "./parse.js";
 export { SpotiflyPlaylist } from "./playlist.js";
-export { Musixmatch, SpotiflyMain as Spotifly };
+export { Musixmatch, SpotiflyMain as Spotifly, SpotiflyInstanceOnly };
