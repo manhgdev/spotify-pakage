@@ -3,9 +3,29 @@ import { Musixmatch } from "./musixmatch.js";
 import { SpotifyAlbum, SpotifyArtist, SpotifyColorLyrics, SpotifyEpisode, SpotifyExtractedColors, SpotifyHome, SpotifyLikedSongs, SpotifyLikedSongsAdd, SpotifyLikedSongsRemove, SpotifyMyLibrary, SpotifyPlaylist, SpotifyPodcast, SpotifyPodcastEpisodes, SpotifyProductState, SpotifyRelatedTrackArtists, SpotifySearchAlbums, SpotifySearchAll, SpotifySearchArtists, SpotifySearchPlaylists, SpotifySearchPodcasts, SpotifySearchTracks, SpotifySearchUsers, SpotifySection, SpotifyTrack, SpotifyTrackCredits, SpotifyUser } from "./types";
 
 class SpotiflyMain extends SpotiflyBase {
+    private static instance: SpotiflyMain | null = null;
+    private static cookieInstances = new Map<string, SpotiflyMain>();
 
     constructor(cookie?: string) {
         super(cookie);
+        
+        if (cookie) {
+            // Nếu đã có instance với cookie này, trả về instance đó
+            if (SpotiflyMain.cookieInstances.has(cookie)) {
+                return SpotiflyMain.cookieInstances.get(cookie)!;
+            }
+            
+            // Lưu instance mới vào map
+            SpotiflyMain.cookieInstances.set(cookie, this);
+        } else {
+            // Nếu đã có instance mặc định, trả về instance đó
+            if (SpotiflyMain.instance) {
+                return SpotiflyMain.instance;
+            }
+            
+            // Lưu instance mặc định
+            SpotiflyMain.instance = this;
+        }
     }
 
     public async getHomepage() {
@@ -154,33 +174,6 @@ class SpotiflyMain extends SpotiflyBase {
 
 }
 
-class SpotiflyInstanceOnly {
-    private static instance: SpotiflyMain | null = null;
-    private static cookieInstances = new Map<string, SpotiflyMain>();
-    
-    constructor(cookie?: string) {
-        return cookie 
-            ? SpotiflyInstanceOnly.getInstanceWithCookie(cookie) 
-            : SpotiflyInstanceOnly.getDefaultInstance();
-    }
-    
-    private static getDefaultInstance(): SpotiflyMain {
-        if (!this.instance) {
-            this.instance = new SpotiflyMain();
-        }
-        return this.instance;
-    }
-    
-    private static getInstanceWithCookie(cookie: string): SpotiflyMain {
-        if (!cookie) return this.getDefaultInstance();
-        
-        if (!this.cookieInstances.has(cookie)) {
-            this.cookieInstances.set(cookie, new SpotiflyMain(cookie));
-        }
-        return this.cookieInstances.get(cookie)!;
-    }
-}
-
 export { Parse } from "./parse.js";
 export { SpotiflyPlaylist } from "./playlist.js";
-export { Musixmatch, SpotiflyMain as Spotifly, SpotiflyInstanceOnly };
+export { Musixmatch, SpotiflyMain as Spotifly };
