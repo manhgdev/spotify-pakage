@@ -13,7 +13,7 @@ let cachedSecretData = null;
 let cacheTimestamp = 0;
 
 // Read secret data from JSON file
-function loadSecretData(forceReload = false) {
+async function loadSecretData(forceReload = false) {
     // If we have cached data and not forced to reload, return cached version
     if (!forceReload && cachedSecretData && (Date.now() - cacheTimestamp) < 30000) { // Cache for 30 seconds
         return cachedSecretData;
@@ -40,6 +40,10 @@ function loadSecretData(forceReload = false) {
             }
         }
 
+        if (!secretData) {
+            throw new Error('Secrets file not found in any expected location');
+        }
+
         // Get a random version
         const randomIndex = Math.floor(Math.random() * secretData.length);
         const randomSecret = secretData[randomIndex];
@@ -55,23 +59,42 @@ function loadSecretData(forceReload = false) {
 
         return result;
     } catch (error) {
-        // console.error('Failed to load secret data:', error.message);
+        console.error('Failed to load secret data:', error.message);
         
-        // Only extract new secrets if we haven't tried recently
+        // Extract new secrets and wait for completion
         if (forceReload || !cachedSecretData) {
-            puppeteer_extract();
+            try {
+                await puppeteer_extract();
+                
+                // Wait a bit for file system to update
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Try to load again after extraction
+                for (const secretPath of possiblePaths) {
+                    if (fs.existsSync(secretPath)) {
+                        const secretData = JSON.parse(fs.readFileSync(secretPath, 'utf8'));
+                        const randomIndex = Math.floor(Math.random() * secretData.length);
+                        const randomSecret = secretData[randomIndex];
+
+                        const result = {
+                            SECRET_DATA: randomSecret.secret,
+                            TOTP_VERSION: randomSecret.version.toString()
+                        };
+
+                        // Cache the result
+                        cachedSecretData = result;
+                        cacheTimestamp = Date.now();
+
+                        return result;
+                    }
+                }
+            } catch (extractError) {
+                console.error('Failed to extract new secrets:', extractError.message);
+            }
         }
         
-        // Fallback to hardcoded values if file reading fails
-        const fallback = {
-            SECRET_DATA: [59, 92, 64, 70, 99, 78, 117, 75, 99, 103, 116, 67, 103, 51, 87, 63, 93, 59, 70, 45, 32],
-            TOTP_VERSION: "13"
-        };
-        
-        cachedSecretData = fallback;
-        cacheTimestamp = Date.now();
-        
-        return fallback;
+        // If all fails, throw error instead of using potentially wrong fallback
+        throw new Error('Unable to load or extract secrets. Please check your setup.');
     }
 }
 
@@ -152,7 +175,7 @@ async function generateAuthPayload(reason = "init", productType = "mobile-web-pl
     const serverTime = await getServerTime(cookie);
 
     // Load secret data once to ensure SECRET_DATA and TOTP_VERSION are from the same version
-    const { SECRET_DATA, TOTP_VERSION } = loadSecretData(forceReloadSecrets);
+    const { SECRET_DATA, TOTP_VERSION } = await loadSecretData(forceReloadSecrets);
     const secret = generateTOTPSecret(SECRET_DATA);
 
     // Generate TOTP for current time
