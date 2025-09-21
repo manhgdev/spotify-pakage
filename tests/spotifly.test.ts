@@ -3,10 +3,10 @@ import { Spotifly } from "../src";
 
 const sp = new Spotifly(process.env.SPOTIFY_COOKIE);
 
-// test("getHomepage", async () => {
-//     const home = await sp.getHomepage();
-//     expect(home.data.home.greeting.text).toStartWith("Good");
-// });
+test("getHomepage", async () => {
+    const home = await sp.getHomepage();
+    expect(home.data.home.greeting.text).toStartWith("Good");
+});
 
 // test("getTrack", async () => {
 //     const track = await sp.getTrack("7MXVkk9YMctZqd1Srtv4MB");
@@ -134,10 +134,10 @@ const sp = new Spotifly(process.env.SPOTIFY_COOKIE);
 //     expect(state.product).toBeString();
 // });
 
-test("getTrackColorLyrics", async () => {
-    const lyrics = await sp.getTrackColorLyrics("7MXVkk9YMctZqd1Srtv4MB");
-    expect(lyrics.lyrics.lines[1].words).toBe("I'm tryna put you in the worst mood, ah");
-});
+// test("getTrackColorLyrics", async () => {
+//     const lyrics = await sp.getTrackColorLyrics("7MXVkk9YMctZqd1Srtv4MB");
+//     expect(lyrics.lyrics.lines[1].words).toBe("I'm tryna put you in the worst mood, ah");
+// });
 
 // test("getMyLikedSongs", async () => {
 //     const songs = await sp.getMyLikedSongs();

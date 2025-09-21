@@ -8,17 +8,28 @@ import fs from 'fs';
 import path from 'path';
 import { puppeteer_extract } from './secrets/puppeteer_extract.js';
 
+// Cache for secret data to avoid repeated file reads
+let cachedSecretData = null;
+let cacheTimestamp = 0;
+
 // Read secret data from JSON file
-function loadSecretData() {
+function loadSecretData(forceReload = false) {
+    // If we have cached data and not forced to reload, return cached version
+    if (!forceReload && cachedSecretData && (Date.now() - cacheTimestamp) < 30000) { // Cache for 30 seconds
+        return cachedSecretData;
+    }
+
     try {
         // Try multiple possible paths for secrets file
         const possiblePaths = [
-            // Development/test environment
+            // Development/test environment - current working directory
             path.join(process.cwd(), 'src/lib/secrets/secretBytes.json'),
-            // Production environment (original path)
-            path.join(process.cwd(), 'src/modules/carwl/spotify/lib/secrets/secretBytes.json'),
             // NPM package path (relative to this file)
-            path.join(path.dirname(import.meta.url.replace('file://', '')), 'secrets/secretBytes.json')
+            path.join(path.dirname(import.meta.url.replace('file://', '')), 'secrets/secretBytes.json'),
+            // Alternative relative path from project root
+            path.resolve('src/lib/secrets/secretBytes.json'),
+            // Node modules installation path
+            path.join(process.cwd(), 'node_modules/spotify-pakage/src/lib/secrets/secretBytes.json')
         ];
 
         let secretData = null;
@@ -33,18 +44,34 @@ function loadSecretData() {
         const randomIndex = Math.floor(Math.random() * secretData.length);
         const randomSecret = secretData[randomIndex];
 
-        return {
+        const result = {
             SECRET_DATA: randomSecret.secret,
             TOTP_VERSION: randomSecret.version.toString()
         };
+
+        // Cache the result
+        cachedSecretData = result;
+        cacheTimestamp = Date.now();
+
+        return result;
     } catch (error) {
-        console.error('Failed to load secret data:', error.message);
-        puppeteer_extract();
+        // console.error('Failed to load secret data:', error.message);
+        
+        // Only extract new secrets if we haven't tried recently
+        if (forceReload || !cachedSecretData) {
+            puppeteer_extract();
+        }
+        
         // Fallback to hardcoded values if file reading fails
-        return {
+        const fallback = {
             SECRET_DATA: [59, 92, 64, 70, 99, 78, 117, 75, 99, 103, 116, 67, 103, 51, 87, 63, 93, 59, 70, 45, 32],
             TOTP_VERSION: "13"
         };
+        
+        cachedSecretData = fallback;
+        cacheTimestamp = Date.now();
+        
+        return fallback;
     }
 }
 
@@ -120,12 +147,12 @@ async function getServerTime(cookie) {
 }
 
 // Generate authentication payload
-async function generateAuthPayload(reason = "init", productType = "mobile-web-player", cookie = "") {
+async function generateAuthPayload(reason = "init", productType = "mobile-web-player", cookie = "", forceReloadSecrets = false) {
     const localTime = Date.now();
     const serverTime = await getServerTime(cookie);
 
     // Load secret data once to ensure SECRET_DATA and TOTP_VERSION are from the same version
-    const { SECRET_DATA, TOTP_VERSION } = loadSecretData();
+    const { SECRET_DATA, TOTP_VERSION } = loadSecretData(forceReloadSecrets);
     const secret = generateTOTPSecret(SECRET_DATA);
 
     // Generate TOTP for current time
@@ -150,21 +177,22 @@ async function makeSpotifyTokenRequest(payload, cookies) {
         url.searchParams.append(key, value);
     });
 
-    const config = {
+    let config = {
         method: 'GET',
         url: url.toString(),
         headers: {
-            'accept': '*/*',
-            'accept-language': 'en,vi;q=0.9,en-US;q=0.8',
-            'priority': 'u=1, i',
-            'referer': 'https://open.spotify.com/',
-            'sec-fetch-dest': 'empty',
-            'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'same-origin',
+            // 'accept': '*/*',
+            // 'accept-language': 'en,vi;q=0.9,en-US;q=0.8',
+            // 'priority': 'u=1, i',
+            // 'referer': 'https://open.spotify.com/',
+            // 'sec-fetch-dest': 'empty',
+            // 'sec-fetch-mode': 'cors',
+            // 'sec-fetch-site': 'same-origin',
             'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
-            'cookie': cookies
+            // 'cookie': cookies
         }
     };
+    if(cookies) config.headers.cookie = cookies;
 
     const response = await fetch(config.url, {
         method: config.method,
@@ -183,16 +211,36 @@ async function makeSpotifyTokenRequest(payload, cookies) {
 
 // Make actual HTTP request to test the generated parameters
 async function spGetToken(cookie = "") {
+    const payload = await generateAuthPayload("init","mobile-web-player", cookie);
     try {
-        const payload = await generateAuthPayload("init","mobile-web-player", cookie);
         const { response, result } = await makeSpotifyTokenRequest(payload, cookie);
         return result;
     } catch (error) {
         // Handle 400 status - retry with new secrets
         // console.log(error.status)
         if (error.status == 400) {
-            console.log('Token request failed with 400, extracting new secrets...');
-            puppeteer_extract();
+            // console.log('Token request failed with 400, extracting new secrets...');
+            
+            // Extract new secrets and wait for completion
+            await puppeteer_extract();
+            
+            // Wait a bit for file system to update
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            try {
+                // Retry with forced reload of secrets
+                const newPayload = await generateAuthPayload("init","mobile-web-player", cookie, true);
+                const { response: newResponse, result: newResult } = await makeSpotifyTokenRequest(newPayload, cookie);
+                return newResult;
+            } catch (retryError) {
+                console.error('Retry with new secrets also failed:', retryError.message);
+                return {
+                    success: false,
+                    error: retryError.message,
+                    payload: payload,
+                    url: `https://open.spotify.com/api/token`
+                };
+            }
         }
 
         return {

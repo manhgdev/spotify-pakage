@@ -10,6 +10,10 @@ export class SpotiflyBase {
 
     constructor(cookie?: string) {
         this.cookie = cookie ?? "";
+        // Gọi refreshToken ngay khi khởi tạo
+        this.refreshToken().catch(error => {
+            console.warn("Không thể làm mới token khi khởi tạo:", error);
+        });
     }
 
     protected async refreshToken() {
