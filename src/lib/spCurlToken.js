@@ -44,9 +44,11 @@ async function loadSecretData(forceReload = false) {
             throw new Error('Secrets file not found in any expected location');
         }
 
-        // Get a random version
-        const randomIndex = Math.floor(Math.random() * secretData.length);
-        const randomSecret = secretData[randomIndex];
+        // Get random entry from highest version
+        const maxVersion = Math.max(...secretData.map(item => item.version));
+        const highestVersionEntries = secretData.filter(item => item.version === maxVersion);
+        const randomSecret = highestVersionEntries[Math.floor(Math.random() * highestVersionEntries.length)];
+        // console.log(randomSecret)
 
         const result = {
             SECRET_DATA: randomSecret.secret,
