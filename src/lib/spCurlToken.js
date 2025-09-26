@@ -197,46 +197,50 @@ async function generateAuthPayload(reason = "init", productType = "mobile-web-pl
 
 // Helper function để tạo và gửi token request
 async function makeSpotifyTokenRequest(payload, cookies) {
-    const url = new URL("https://open.spotify.com/api/token");
-    Object.entries(payload).forEach(([key, value]) => {
-        url.searchParams.append(key, value);
-    });
+    try {
+        const url = new URL("https://open.spotify.com/api/token");
+        Object.entries(payload).forEach(([key, value]) => {
+            url.searchParams.append(key, value);
+        });
 
-    let config = {
-        method: 'GET',
-        url: url.toString(),
-        headers: {
-            // 'accept': '*/*',
-            // 'accept-language': 'en,vi;q=0.9,en-US;q=0.8',
-            // 'priority': 'u=1, i',
-            // 'referer': 'https://open.spotify.com/',
-            // 'sec-fetch-dest': 'empty',
-            // 'sec-fetch-mode': 'cors',
-            // 'sec-fetch-site': 'same-origin',
-            'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
-            // 'cookie': cookies
+        let config = {
+            method: 'GET',
+            url: url.toString(),
+            headers: {
+                // 'accept': '*/*',
+                // 'accept-language': 'en,vi;q=0.9,en-US;q=0.8',
+                // 'priority': 'u=1, i',
+                // 'referer': 'https://open.spotify.com/',
+                // 'sec-fetch-dest': 'empty',
+                // 'sec-fetch-mode': 'cors',
+                // 'sec-fetch-site': 'same-origin',
+                'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
+                // 'cookie': cookies
+            }
+        };
+        if(cookies) config.headers.cookie = cookies;
+
+        const response = await fetch(config.url, {
+            method: config.method,
+            headers: config.headers
+        });
+
+        if (!response.ok) {
+            const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
+            error.status = response.status;
+            throw error;
         }
-    };
-    if(cookies) config.headers.cookie = cookies;
 
-    const response = await fetch(config.url, {
-        method: config.method,
-        headers: config.headers
-    });
-
-    if (!response.ok) {
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        error.status = response.status;
-        throw error;
+        const result = await response.json();
+        return { response, result };
+    } catch (error) {
+         throw error;
     }
-
-    const result = await response.json();
-    return { response, result };
 }
 
 // Make actual HTTP request to test the generated parameters
 async function spGetToken(cookie = "") {
-    const payload = await generateAuthPayload("init","mobile-web-player", cookie);
+    const payload = await generateAuthPayload("init", "mobile-web-player", cookie);
     try {
         const { response, result } = await makeSpotifyTokenRequest(payload, cookie);
         return result;
